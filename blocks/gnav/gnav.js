@@ -1,4 +1,42 @@
-import { fetchBlogArticleIndex, createOptimizedPicture } from '../../scripts/scripts.js';
+import { fetchBlogArticleIndex, createOptimizedPicture, loadScript } from '../../scripts/scripts.js';
+
+window.adobeid = {
+    client_id: 'bizweb',
+    scope: 'AdobeID,openid,gnav',
+    locale: 'en_US',
+    environment: 'stg1',
+    useLocalStorage: false,
+    onAccessToken: function (tokenInformation) {
+    },
+    onReauthAccessToken: function (reauthTokenInformation) {
+    },
+    onError: function (error) {
+    },
+    onAccessTokenHasExpired: function() {
+    },
+    onReady: async function(appState) {
+      const signedIn = adobeIMS.isSignedInUser();
+      if (signedIn) {
+        const accessToken = adobeIMS.getAccessToken();
+        const profile = await adobeIMS.getProfile();
+        const { displayName, email } = profile;
+        const ioResp = await fetch('https://cc-collab-stage.adobe.io/profile', {
+          headers: new Headers({ Authorization: `Bearer ${accessToken.token}` }),
+        });
+        const ioProfile = await ioResp.json();
+        const { user } = ioProfile;
+        const { avatar } = user;
+        console.log(avatar);
+      }
+    },
+};
+
+function loadIms() {
+  loadScript('https://auth-stg1.services.adobe.com/imslib/imslib.min.js');
+}
+
+
+
 
 function highlightTextElements(terms, elements) {
   elements.forEach((e) => {
@@ -284,4 +322,5 @@ export async function decorateGNav(blockEl, url) {
 export default function decorate(blockEl) {
   const url = blockEl.getAttribute('data-gnav-source');
   decorateGNav(blockEl, url);
+  loadIms();
 }
