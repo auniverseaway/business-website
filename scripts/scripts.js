@@ -628,7 +628,7 @@ async function decoratePage(win = window) {
         /* load gnav */
         const header = document.querySelector('header');
         header.setAttribute('data-block-name', 'gnav');
-        header.setAttribute('data-gnav-source', '/blog/gnav');
+        header.setAttribute('data-gnav-source', '/drafts/cmillar/gnav');
         loadBlock(header);
 
         await loadBlocks($main);

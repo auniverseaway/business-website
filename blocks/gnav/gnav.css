@@ -19,20 +19,13 @@ header .gnav {
   left: 0;
   right: 0;
   box-sizing: border-box;
-  height: 64px;
-  padding: 0 23px;
+  padding: 0 20px;
   align-items: center;
 }
 
 header .gnav a:any-link {
   color: #2e2e2e;
   text-decoration: none;
-}
-
-header {
-  height: 64px;
-  box-sizing: border-box;
-  border-bottom: 1px solid #EAEAEA;
 }
 
 header .gnav .gnav-hamburger {
@@ -47,19 +40,45 @@ header .gnav .gnav-signin {
   justify-self: end;
 }
 
-header .gnav .gnav-logo {
-  grid-area: logo;
-  justify-self: center;
+header .gnav .gnav-signin.is-Hidden {
+  display: none;
+}
+
+.gnav-profile-button {
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
 }
 
 header .gnav .gnav-section {
   grid-area: section;
 }
 
+header .gnav .gnav-logo {
+  grid-area: logo;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  box-sizing: border-box;
+  font-weight: 700;
+}
+
 header .gnav .gnav-logo img {
-  height: 25px;
   width: 25px;
   box-sizing: content-box;    
+}
+
+header .gnav .gnav-logo .gnav-logo-brand {
+  color: #fa0f00;
+  font-size: 18px;
+  line-height: 18px;
+  padding-left: 10px;
+  display: inline-block;
+  padding-top: 0px;
+  vertical-align: top;
 }
 
 header .gnav .gnav-hamburger::before {
@@ -88,27 +107,6 @@ header .gnav .gnav-submenu > div {
 
 header .gnav .gnav-submenu > div:hover {
   background-color: #f2f2f2;
-}
-
-header .gnav .gnav-logo {
-  min-width: 124px;
-  box-sizing: border-box;
-  display: flex;
-  font-weight: 700;
-}
-
-header .gnav .gnav-logo img {
-  height: 24px;
-  width: 25px;
-}
-
-header .gnav .gnav-logo span {
-  color: #fa0f00;
-  font-size: 18px;
-  padding-left: 10px;
-  display: inline-block;
-  padding-top: 0px;
-  vertical-align: top;
 }
 
 header .gnav .gnav-section > span {
@@ -256,33 +254,21 @@ header .gnav .gnav-search-highlight {
 }
 
 @media (min-width: 1200px) {
-
-  header .gnav .gnav-hamburger {
-    display: none;
-  }
-
-  header .gnav .gnav-logo {
-    grid-area: logo;
-    justify-self: start;
-  }
-  
-
-  header .gnav .gnav-logo,
-  header .gnav .gnav-section {
-    display: block;
-  }  
-  
   header .gnav {
     color: #2c2c2c;
     max-width: 1440px;
     min-width: 1200px;
     margin: auto;
     grid-template-areas: 'logo section search signin';
-    grid-template-columns: 200px 1fr 20px 50px;
+    grid-template-columns: auto 1fr 20px 50px;
   }
 
-  header .gnav .gnav-section {
-    padding: 0 8.5px 1px 8.5px;
+  header .gnav .gnav-hamburger {
+    display: none;
+  }
+
+  header .gnav .gnav-logo {
+    justify-self: start;
   }
 
   header .gnav .gnav-right {
@@ -344,8 +330,7 @@ header .gnav .gnav-search-highlight {
   }
 
   header .gnav .gnav-section {
-    display: flex;
-    align-items: center;
+    display: block;
   }
 
   header .gnav .gnav-submenu {

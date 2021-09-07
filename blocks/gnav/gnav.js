@@ -1,42 +1,45 @@
 import { fetchBlogArticleIndex, createOptimizedPicture, loadScript } from '../../scripts/scripts.js';
 
-window.adobeid = {
-    client_id: 'bizweb',
-    scope: 'AdobeID,openid,gnav',
-    locale: 'en_US',
-    environment: 'stg1',
-    useLocalStorage: false,
-    onAccessToken: function (tokenInformation) {
-    },
-    onReauthAccessToken: function (reauthTokenInformation) {
-    },
-    onError: function (error) {
-    },
-    onAccessTokenHasExpired: function() {
-    },
-    onReady: async function(appState) {
-      const signedIn = adobeIMS.isSignedInUser();
-      if (signedIn) {
-        const accessToken = adobeIMS.getAccessToken();
-        const profile = await adobeIMS.getProfile();
-        const { displayName, email } = profile;
-        const ioResp = await fetch('https://cc-collab-stage.adobe.io/profile', {
-          headers: new Headers({ Authorization: `Bearer ${accessToken.token}` }),
-        });
-        const ioProfile = await ioResp.json();
-        const { user } = ioProfile;
-        const { avatar } = user;
-        console.log(avatar);
-      }
-    },
-};
-
-function loadIms() {
-  loadScript('https://auth-stg1.services.adobe.com/imslib/imslib.min.js');
+async function addProfileMenu(gnavEl) {
+  const accessToken = adobeIMS.getAccessToken();
+  const profile = await adobeIMS.getProfile();
+  const { displayName, email } = profile;
+  const ioResp = await fetch('https://cc-collab-stage.adobe.io/profile', {
+    headers: new Headers({ Authorization: `Bearer ${accessToken.token}` }),
+  });
+  const ioProfile = await ioResp.json();
+  const { user } = ioProfile;
+  const { avatar } = user;
+  const profileButton = `<button class="gnav-profile-button" aria-haspopup="true" aria-label="${displayName}"><img src="${avatar}"></button>`;
+  gnavEl.insertAdjacentHTML('beforebegin', profileButton);
+  gnavEl.remove();
 }
 
+function imsReady() {
+  const signinEl = document.querySelector('header .gnav-signin');
+  if (adobeIMS.isSignedInUser()) {
+    addProfileMenu(signinEl);
+  } else {
+    signinEl.classList.remove('is-Hidden');
+    signinEl.addEventListener('click', (e)=> {
+      e.preventDefault();
+      adobeIMS.signIn();
+    });
+  }
+}
 
+window.adobeid = {
+  client_id: 'bizweb',
+  scope: 'AdobeID,openid,gnav',
+  locale: 'en_US',
+  environment: 'stg1',
+  useLocalStorage: false,
+  onReady: imsReady,
+};
 
+function initProfile() {
+  loadScript('https://auth-stg1.services.adobe.com/imslib/imslib.min.js');
+}
 
 function highlightTextElements(terms, elements) {
   elements.forEach((e) => {
@@ -162,12 +165,32 @@ function getSubmenu(submenu) {
   return submenuEl;
 }
 
+function getProfile(profileEl) {
+  const profile = {};
+  const signInEl = profileEl.querySelector('a');
+  if (signInEl) {
+    profile.signIn = {
+      text: signInEl.textContent,
+      href: signInEl.href,
+    };
+  }
+
+  const dropdownEl = profileEl.querySelector(':scope > div:last-of-type');
+  if (dropdownEl) {
+    dropdownEl.classList.add('.is-Hidden');
+    profile.dropdown = {
+      element: dropdownEl,
+    };
+  }
+  return profile;
+}
+
 function getGnav(nav) {
   const gnav = document.createElement('div');
   gnav.className = 'gnav';
   const html = `
         <div class="gnav-hamburger" tabindex="0"></div>
-        <div class="gnav-logo"><a href="${nav.logo.href}"><img loading="lazy" src="/blocks/gnav/adobe-logo.svg"></a><span class="gnav-adobe">${nav.logo.text}</span></a></div>
+        <a class="gnav-logo" href="${nav.logo.href}"><img loading="lazy" src="/blocks/gnav/adobe-logo.svg"><span class="gnav-logo-brand">${nav.logo.text}</span></a>
         <div class="gnav-section"></div>
         </div>
         <div class="gnav-search"><div class="gnav-search-icon" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" id="gnav-search-icon" width="20" height="20" viewBox="0 0 24 24" focusable="false">
@@ -189,7 +212,7 @@ function getGnav(nav) {
             </div>
           </div>
         </div>
-        <div class="gnav-signin"><a href="${nav.signIn.href}">${nav.signIn.text}</a></div>`;
+        <div class="gnav-signin is-Hidden"><a href="${nav.profile.signIn.href}">${nav.profile.signIn.text}</a></div>`;
 
   gnav.innerHTML = html;
 
@@ -294,12 +317,10 @@ async function markupToNav(url) {
   const logo = nav.top.shift();
   nav.logo = logo;
 
-  const signInEl = header.querySelector('.sign-in a');
-  if (signInEl) {
-    nav.signIn = {
-      text: signInEl.textContent,
-      href: signInEl.href,
-    };
+  // Build profile functions
+  const profileEl = header.querySelector('.profile');
+  if (profileEl) {
+    nav.profile = getProfile(profileEl);
   }
 
   const searchEl = header.querySelector('.search a');
@@ -315,12 +336,11 @@ async function markupToNav(url) {
 
 export async function decorateGNav(blockEl, url) {
   const nav = await markupToNav(url);
-
   blockEl.appendChild(getGnav(nav));
+  initProfile();
 }
 
 export default function decorate(blockEl) {
   const url = blockEl.getAttribute('data-gnav-source');
   decorateGNav(blockEl, url);
-  loadIms();
 }
