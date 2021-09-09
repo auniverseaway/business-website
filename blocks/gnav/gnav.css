@@ -87,7 +87,8 @@
 }
 
 .gnav-navitem.has-Dropdown.is-Open .gnav-navitem-dropdown {
-  display: block;
+  display: grid;
+  grid-template-areas: 'nav promo';
   position: absolute;
   top: 100%;
 }
@@ -106,6 +107,20 @@
 .gnav-navitem-dropdown a:hover {
   color: #1473E6;
   background-color: #F5F5F5;
+}
+
+.gnav-promo {
+  grid-area: promo;
+  width: 260px;
+}
+
+.gnav-promo picture,
+.gnav-promo img {
+  display: block;
+}
+
+.gnav-promo img {
+  width: 100%;
 }
 
 .gnav .gnav-search {
