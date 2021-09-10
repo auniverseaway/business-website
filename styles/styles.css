@@ -324,6 +324,7 @@ main .section-wrapper p.button-container {
 
 header {
   display: flex;
+  position: relative;
   border-bottom: 1px solid #EAEAEA;
   height: 64px;
   background-color: var(--color-white);

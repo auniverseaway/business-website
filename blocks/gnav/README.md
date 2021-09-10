@@ -42,3 +42,9 @@
 
 ## Features
 
+## Behaviors
+1. Nav menus will close on scroll and on document click.
+1. Only one nav menu can be open at a time.
+1. Opening the search bar will close any open nav menu.
+1. Opening a menu will close the search bar.
+1. Search will not close on scroll or document click.
