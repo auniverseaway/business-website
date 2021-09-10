@@ -101,11 +101,17 @@ async function populateSearchResults(searchTerms, searchResultsEl) {
       searchResultsEl.appendChild(card);
     });
 
+    if (!hits.length) {
+      searchResultsEl.classList.add('no-Results');
+    } else {
+      searchResultsEl.classList.remove('no-Results');
+    }
+
     highlightTextElements(terms, searchResultsEl.querySelectorAll('h3, .article-card-category, .article-card-body > p '));
   }
 }
 
-function onSearchInput(value, searchBar, searchResults, advancedLink) {
+function onSearchInput(value, searchResults, advancedLink) {
   populateSearchResults(value, searchResults);
   if (advancedLink) {
     const href = new URL(advancedLink.href);
@@ -130,13 +136,13 @@ function decorateSearchBar(label, advancedLink) {
   searchResults.className = 'gnav-search-results';
 
   searchInput.addEventListener('input', (e) => {
-    onSearchInput(e.target.value, searchBar, searchResults, advancedLink);
+    onSearchInput(e.target.value, searchResults, advancedLink);
   });
 
-  searchField.appendChild(searchInput);
-  searchField.appendChild(advancedLink);
-  searchBar.appendChild(searchField);
-  searchBar.appendChild(searchResults);
+  searchField.append(searchInput);
+  searchField.append(advancedLink);
+  searchBar.append(searchField);
+  searchBar.append(searchResults);
   return searchBar;
 }
 
@@ -157,8 +163,8 @@ function decorateSearch(el) {
   searchButton.addEventListener('click', () => {
     searchEl.classList.toggle('is-Open');
   });
-  searchEl.appendChild(searchButton);
-  searchEl.appendChild(searchBar);
+  searchEl.append(searchButton);
+  searchEl.append(searchBar);
 
   return searchEl;
 }

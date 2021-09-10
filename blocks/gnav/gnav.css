@@ -197,6 +197,7 @@
   box-sizing: border-box;
   transition: border-color 130ms ease-in-out, box-shadow 130ms ease-in-out;
 }
+
 .gnav-search-field a {
   line-height: 32px;
   background: rgb(20, 115, 230);

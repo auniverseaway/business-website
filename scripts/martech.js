@@ -11,9 +11,11 @@
  */
 import { loadScript } from './scripts.js';
 
+const url = new URL(window.location.href);
+
 window.marketingtech = window.marketingtech || {};
 window.marketingtech.adobe = {
-  target: true,
+  target: url.hostname.endsWith('.adobe.com'),
   audienceManager: true,
   launch: {
     property: 'global',
