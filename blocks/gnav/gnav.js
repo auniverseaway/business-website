@@ -1,4 +1,4 @@
-import populateSearchResults from './search.js';
+import { fetchBlogArticleIndex, createOptimizedPicture } from '../../scripts/scripts.js';
 
 const BRAND_IMG = '<img loading="lazy" alt="Adobe" src="/blocks/gnav/adobe-logo.svg">';
 const SEARCH_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" focusable="false">
@@ -28,13 +28,85 @@ function decorateProfile(el) {
   return el;
 }
 
+function highlightTextElements(terms, elements) {
+  elements.forEach((e) => {
+    const matches = [];
+    const txt = e.textContent;
+    terms.forEach((term) => {
+      const offset = txt.toLowerCase().indexOf(term);
+      if (offset >= 0) {
+        matches.push({ offset, term });
+      }
+    });
+    matches.sort((a, b) => a.offset - b.offset);
+    let markedUp = '';
+    if (!matches.length) markedUp = txt;
+    else {
+      markedUp = txt.substr(0, matches[0].offset);
+      matches.forEach((hit, i) => {
+        markedUp += `<span class="gnav-search-highlight">${txt.substr(hit.offset, hit.term.length)}</span>`;
+        if (matches.length - 1 === i) {
+          markedUp += txt.substr(hit.offset + hit.term.length);
+        } else {
+          markedUp += txt.substring(hit.offset + hit.term.length, matches[i + 1].offset);
+        }
+      });
+      e.innerHTML = markedUp;
+    }
+  });
+}
+
+async function populateSearchResults(searchTerms, searchResultsEl) {
+  const limit = 12;
+  const terms = searchTerms.toLowerCase().split(' ').map((e) => e.trim()).filter((e) => !!e);
+  searchResultsEl.innerHTML = '';
+
+  if (terms.length) {
+    if (!window.blogIndex) {
+      window.blogIndex = await fetchBlogArticleIndex();
+    }
+
+    const articles = window.blogIndex.data;
+
+    const hits = [];
+    let i = 0;
+    for (; i < articles.length; i += 1) {
+      const e = articles[i];
+      const text = [e.category, e.title, e.teaser].join(' ').toLowerCase();
+
+      if (terms.every((term) => text.includes(term))) {
+        if (hits.length === limit) {
+          break;
+        }
+        hits.push(e);
+      }
+    }
+
+    hits.forEach((e) => {
+      const {
+        title, description, image, category,
+      } = e;
+      const path = e.path.split('.')[0];
+      const picture = createOptimizedPicture(image, title, false, [{ width: '750' }]);
+      const pictureTag = picture.outerHTML;
+      const card = document.createElement('a');
+      card.className = 'article-card';
+      card.href = path;
+      card.innerHTML = `<div class="article-card-image">${pictureTag}</div>
+        <div class="article-card-body">
+          <p class="article-card-category">${category}</p>
+          <h3>${title}</h3>
+          <p>${description}</p>
+        </div>`;
+      searchResultsEl.appendChild(card);
+    });
+
+    highlightTextElements(terms, searchResultsEl.querySelectorAll('h3, .article-card-category, .article-card-body > p '));
+  }
+}
+
 function onSearchInput(value, searchBar, searchResults, advancedLink) {
   populateSearchResults(value, searchResults);
-  if (value.trim().length === 0) {
-    searchBar.classList.add('gnav-nosearch');
-  } else {
-    searchBar.classList.remove('gnav-nosearch');
-  }
   if (advancedLink) {
     const href = new URL(advancedLink.href);
     href.searchParams.set('q', value);
@@ -44,18 +116,18 @@ function onSearchInput(value, searchBar, searchResults, advancedLink) {
 
 function decorateSearchBar(label, advancedLink) {
   const searchBar = document.createElement('aside');
-  searchBar.classList.add('gnav-search-bar', 'is-Open');
+  searchBar.className = 'gnav-search-bar';
 
   const searchField = document.createElement('div');
-  searchField.classList.add('gnav-search-field');
+  searchField.className = 'gnav-search-field';
   searchField.insertAdjacentHTML('afterbegin', SEARCH_ICON);
 
   const searchInput = document.createElement('input');
   searchInput.setAttribute('placeholder', label);
-  searchInput.classList.add('gnav-search-input');
+  searchInput.className = 'gnav-search-input';
 
   const searchResults = document.createElement('div');
-  searchResults.classList.add('gnav-search-results');
+  searchResults.className = 'gnav-search-results';
 
   searchInput.addEventListener('input', (e) => {
     onSearchInput(e.target.value, searchBar, searchResults, advancedLink);
@@ -70,13 +142,13 @@ function decorateSearchBar(label, advancedLink) {
 
 function decorateSearch(el) {
   const searchEl = document.createElement('div');
-  searchEl.classList.add('gnav-search');
+  searchEl.className = 'gnav-search';
 
   const label = el.querySelector('p').textContent;
   const advancedLink = el.querySelector('a');
 
   const searchButton = document.createElement('button');
-  searchButton.classList.add('gnav-search-button');
+  searchButton.className = 'gnav-search-button';
   searchButton.ariaLabel = label;
 
   const searchBar = decorateSearchBar(label, advancedLink);
@@ -91,9 +163,9 @@ function decorateSearch(el) {
   return searchEl;
 }
 
-function decorateMenu(navLinks, navItem, dropdown, navLink, currentIdx) {
-  navItem.classList.add('has-Dropdown');
-  dropdown.classList.add('gnav-navitem-dropdown');
+function decorateMenu(navLinks, navItem, menu, navLink, currentIdx) {
+  navItem.classList.add('has-Menu');
+  menu.className = 'gnav-navitem-menu';
   navLink.addEventListener('click', (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -110,16 +182,16 @@ function decorateMenu(navLinks, navItem, dropdown, navLink, currentIdx) {
       document.addEventListener('scroll', scrollClose, { passive: true });
     }
   });
-  return dropdown;
+  return menu;
 }
 
 function buildMainNav(navLinks) {
   const mainNav = document.createElement('div');
-  mainNav.classList.add('gnav-mainnav');
+  mainNav.className = 'gnav-mainnav';
   navLinks.forEach((navLink, idx) => {
     // Setup the nav item
     const navItem = document.createElement('div');
-    navItem.classList.add('gnav-navitem');
+    navItem.className = 'gnav-navitem';
 
     // Reuse the parent for the menu
     const menu = navLink.closest('div');
