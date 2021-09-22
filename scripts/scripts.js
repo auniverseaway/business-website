@@ -10,13 +10,34 @@
  * governing permissions and limitations under the License.
  */
 
+export function createEl({
+  tag, className, id, html, attributes,
+}) {
+  const el = document.createElement(tag);
+
+  if (id) { el.id = id; }
+  if (className) { el.className = className; }
+
+  if (html && html instanceof HTMLElement) {
+    el.append(html);
+  } else if (html && typeof html === 'string') {
+    el.innerHTML = html;
+  }
+  if (attributes) {
+    Object.keys(attributes).forEach((key) => {
+      el.setAttribute(key, attributes[key]);
+    });
+  }
+  return el;
+}
+
 /**
  * Loads a CSS file.
  * @param {string} href The path to the CSS file
  */
 export function loadCSS(href) {
   if (!document.querySelector(`head > link[href="${href}"]`)) {
-    const link = document.createElement('link');
+    const link = createEl({ tag: 'link', attributes: { rel: 'stylesheet', href } });
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', href);
     link.onload = () => {
@@ -36,6 +57,21 @@ export function getMetadata(name) {
   const attr = name && name.includes(':') ? 'property' : 'name';
   const $meta = document.head.querySelector(`meta[${attr}="${name}"]`);
   return $meta && $meta.content;
+}
+
+/**
+ * Get the current Helix environment
+ * @returns {Object} the env object
+ */
+export function getHelixEnv() {
+  let envName = sessionStorage.getItem('helix-env');
+  if (!envName) envName = 'prod';
+  const envs = { stage: {}, prod: {} };
+  const env = envs[envName];
+  if (env) {
+    env.name = envName;
+  }
+  return env;
 }
 
 /**
@@ -656,6 +692,27 @@ async function decoratePage(win = window) {
 
 decoratePage(window);
 
+function setHelixEnv(name) {
+  if (name) {
+    sessionStorage.setItem('helix-env', name);
+  } else {
+    sessionStorage.removeItem('helix-env');
+  }
+}
+
+function displayEnv() {
+  try {
+    /* setup based on URL Params */
+    const usp = new URLSearchParams(window.location.search);
+    if (usp.has('helix-env')) {
+      const env = usp.get('helix-env');
+      setHelixEnv(env);
+    }
+  } catch (e) {
+    console.log(`display env failed: ${e.message}`);
+  }
+}
+displayEnv();
 /*
  * lighthouse performance instrumentation helper
  * (needs a refactor)

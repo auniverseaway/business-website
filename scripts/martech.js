@@ -9,13 +9,13 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import { loadScript } from './scripts.js';
+import { loadScript, getHelixEnv } from './scripts.js';
 
-const url = new URL(window.location.href);
+const envName = getHelixEnv().name;
 
 window.marketingtech = window.marketingtech || {};
 window.marketingtech.adobe = {
-  target: url.hostname.endsWith('.adobe.com'),
+  target: envName === 'prod' || envName === 'stage',
   audienceManager: true,
   launch: {
     property: 'global',
