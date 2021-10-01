@@ -53,10 +53,6 @@
 .tk-adobe-clean { font-family: "adobe-clean",sans-serif; }
 .tk-adobe-clean-serif { font-family: "adobe-clean-serif",sans-serif; }
 
-main .featured-article-container div h1 {
-  padding: 0 2rem;
-}
-
 main div.article-header-container + div a:any-link:not([class]) {
   color: var(--color-info-accent);
   text-decoration: underline;
