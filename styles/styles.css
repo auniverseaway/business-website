@@ -364,7 +364,8 @@ main .recommended-articles,
 main .featured-article,
 main .article-feed,
 main .article-header,
-main .tag-header-container {
+main .tag-header-container,
+main .recommended-articles-small-container {
   visibility: hidden;
 }
 
@@ -380,6 +381,13 @@ main .featured-article-container > div {
 main .featured-article-container div h1 {
   padding: 0 2rem;
   text-align: center;
+}
+
+@media (min-width: 600px) {
+  main .featured-article-container div h1 {
+    text-align: left;
+    max-width: 800px;
+  }
 }
 
 main .article-feed {
