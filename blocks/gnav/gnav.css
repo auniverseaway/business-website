@@ -30,6 +30,14 @@ header .gnav {
   text-decoration: none;
 }
 
+.gnav.is-Open {
+  position: fixed;
+  left: 0;
+  right: 0;
+  max-height: 100%;
+  overflow: scroll;
+}
+
 button.gnav-toggle {
   grid-area: toggle;
   font-size: 20px;
@@ -179,6 +187,12 @@ button.gnav-toggle:after {
 
 .gnav.is-Open .gnav-search-bar {
   display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 118px;
+  max-height: calc(100% - 118px);
+  overflow: scroll;
 }
 
 .gnav-search button svg {
@@ -306,6 +320,10 @@ button.gnav-toggle:after {
   margin: 0;
   width: unset;
   max-width: unset;
+}
+
+.gnav-search-results .article-card:first-of-type {
+  margin-top: 20px;
 }
 
 .gnav-search-highlight {
@@ -443,6 +461,10 @@ button.gnav-toggle:after {
     padding: 0 12px 0 0;
   }
 
+  .gnav.is-Open {
+    position: unset;
+  }
+
   .gnav-toggle {
     display: none;
   }
@@ -502,12 +524,17 @@ button.gnav-toggle:after {
     left: 0;
     right: 0;
     top: 64px;
+    max-height: calc(100% - 64px);
     overflow: scroll;
   }
   
   .gnav-search-results {
     margin: 20px auto;
   }
+
+  .gnav-search-results .article-card:first-of-type {
+    margin-top: unset;
+}
 }
 
 @media (min-width: 1440px) {

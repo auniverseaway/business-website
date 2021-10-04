@@ -340,7 +340,10 @@ class Gnav {
     document.addEventListener('click', this.closeOnDocClick);
     window.addEventListener('keydown', this.closeOnEscape);
     if (!isSearch) {
-      document.addEventListener('scroll', this.closeOnScroll, { passive: true });
+      const desktop = window.matchMedia('(min-width: 1200px)');
+      if (desktop.matches) {
+        document.addEventListener('scroll', this.closeOnScroll, { passive: true });
+      }
     } else {
       this.curtain.classList.add(IS_OPEN);
       el.querySelector('.gnav-search-input').focus();
