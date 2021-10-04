@@ -61,7 +61,7 @@ main .featured-article-card-image img {
   object-fit: cover;
   height: 100%;
   width: 100%;
-  transition: .4s;
+  transition: opacity .4s;
 }
 
 main .featured-article-card-image img:hover {
